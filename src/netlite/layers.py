@@ -1,5 +1,3 @@
-# Copyright (c): Hanno Homann, 2024-'25
-
 import numpy as np
 import numba
 from abc import ABC, abstractmethod

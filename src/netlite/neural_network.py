@@ -1,5 +1,3 @@
-# Copyright (c): Hanno Homann, 2024-'25
-
 class NeuralNetwork():
     def __init__(self):
         self.layers = []

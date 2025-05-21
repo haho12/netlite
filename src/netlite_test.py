@@ -113,16 +113,19 @@ def train(model, optimizer, X_train, y_train, X_valid=(), y_valid=(),
         end_time = time.time()
         elapsed_time = end_time - start_time
         print(f"runtime: {elapsed_time:.1f} sec")
-        log['loss_train'].append(loss_sum)
+        
+        loss_train_mean = loss_sum / len(y_train)
+        log['loss_train'].append(loss_train_mean)
         log['acc_train'].append(n_correct_predictions_sum / len(y_train))
 
         if len(X_valid) > 0: # if validation data is available
-            loss_valid, n_correct_predictions_valid = optimizer.step(model, X_valid, y_valid, forward_only=True)
-            log['loss_valid'].append(loss_valid)
+            loss_sum_valid, n_correct_predictions_valid = optimizer.step(model, X_valid, y_valid, forward_only=True)
+            loss_valid_mean = loss_sum_valid / len(y_valid)
+            log['loss_valid'].append(loss_valid_mean)
             log['acc_valid'].append(n_correct_predictions_valid / len(y_valid))
-            print(f'Epoch {epoch+1:3d} : loss_train {loss_sum:7.1f}, loss_valid {loss_valid:7.1f}, acc_train {log["acc_train"][-1]:5.3f}, acc_valid {log["acc_valid"][-1]:5.3f}')
+            print(f'Epoch {epoch+1:3d} : loss_train {loss_train_mean:7.5f}, loss_valid {loss_valid_mean:7.5f}, acc_train {log["acc_train"][-1]:5.3f}, acc_valid {log["acc_valid"][-1]:5.3f}')
         else:
-            print(f'Epoch {epoch+1:3d} : loss_train {loss_sum:7.1f}, acc_train {log["acc_train"][-1]:5.3f}')
+            print(f'Epoch {epoch+1:3d} : loss_train {loss_train_mean:7.1f}, acc_train {log["acc_train"][-1]:5.3f}')
 
         # re-initialize ADAM optimizer after each epoch to improve stability
         optimizer.adam_t = 0
@@ -131,8 +134,8 @@ def train(model, optimizer, X_train, y_train, X_valid=(), y_valid=(),
 
 if __name__ == '__main__':
     #testcase = 'xor'
-    testcase = 'mnist_fcn'   # fast fully-connected network, more overfitting
-    #testcase = 'mnist_lenet' # original LeNet CNN
+    #testcase = 'mnist_fcn'   # fast fully-connected network, more overfitting
+    testcase = 'mnist_lenet' # original LeNet CNN
     
     if testcase == 'xor':
         model = nl.NeuralNetwork()
@@ -237,8 +240,7 @@ if __name__ == '__main__':
         optim = 'adam'
 
     optimizer = Optimizer(optim, loss_func, learning_rate)
-    log = train(model, optimizer, X_train, y_train, X_test, y_test,
-                  n_epochs, batchsize)
+    log = train(model, optimizer, X_train, y_train, X_test, y_test, n_epochs, batchsize)
 
     plt.plot(log['loss_train'], label='training loss')
     plt.plot(log['loss_valid'], label='validation loss')
