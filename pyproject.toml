@@ -1,0 +1,23 @@
+[build-system]
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "netlite"
+version = "0.0.1"
+authors = [
+  { name="Hanno Homann", email="hanno.homann@example.com" },
+]
+description = "A small white-box training framework for neural networks for education."
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICENSE"]
+
+[project.urls]
+Homepage = "https://github.com/haho12/netlite"
+Issues = "https://github.com/haho12/netlite/issues"
