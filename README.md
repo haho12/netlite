@@ -2,16 +2,16 @@
 
 A small white-box training framework for neural networks for education.
 
-Learning objectives:
+**Learning objectives:**
 - Use debugger to step through optimization, compare with manual calculations
 - Understand and compare different optimizers (SGD, Momentum, ADAM)
 
-Achievements:
-- Data-loader allows to limits number of images used
+**Performance:**
 - On LeNet, this framework achieves 99% accuracy on the MNIST validation data in about 150 seconds (on my laptop cpu).
   - Efficient computation using numpy for most operations 
     and a just-in-time compiled convolution using numba.
-
+- Data-loader allows to limit the number of images used, e.g. to train on just 10% of the MNIST data, 
+  for even faster training during lab exercises and to get a feeling for over-fitting when not enough data is available.
 
 ## First example: Train 2-layer model as an XOR classifier
 
