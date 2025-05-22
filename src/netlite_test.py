@@ -55,7 +55,7 @@ def train(model, optimizer, X_train, y_train, X_valid=(), y_valid=(), n_epochs=1
             print(f'Epoch {epoch+1:3d} : loss_train {loss_train_mean:7.1f}, acc_train {log["acc_train"][-1]:5.3f}')
 
         # re-initialize ADAM optimizer after each epoch to improve stability
-        optimizer.adam_t = 0
+        #optimizer.adam_t = 0
     
     return log
 
@@ -166,7 +166,13 @@ if __name__ == '__main__':
         batchsize =  32
         optim = 'adam'
 
-    optimizer = nl.Optimizer(optim, loss_func, learning_rate)
+    if optim == 'sgd':
+        optimizer = nl.OptimizerSGD(loss_func, learning_rate)
+    elif optim == 'momentum':
+        optimizer = nl.OptimizerMomentum(loss_func, learning_rate)
+    elif optim == 'adam':
+        optimizer = nl.OptimizerADAM(loss_func, learning_rate)
+        
     log = train(model, optimizer, X_train, y_train, X_test, y_test, n_epochs, batchsize)
 
     plt.plot(log['loss_train'], label='training loss')
