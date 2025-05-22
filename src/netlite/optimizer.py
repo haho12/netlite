@@ -2,37 +2,28 @@ import numpy as np
 
 class OptimizerSGD():
     ''''Default optimizer for stochastic gradient descent (SGD)'''
+
     def __init__(self, loss_func, learning_rate):
         self.loss_func = loss_func
         self.learning_rate = learning_rate
-        
-        # ADAM parameters
-        self.beta1 = 0.9
-        self.beta2 = 0.999
-        self.t = 0
-        self.eps = 1e-8
 
-    def step(self, model, X, y_true, forward_only=False):
+    def step(self, model, X, y_true, compute_accuracy=True, forward_only=False):
         use_logits = self.loss_func.use_logits
         
         # forward pass
         y_model = model.forward(X, use_logits)
         
         # compute accuracy
-        if y_model.shape[1] > 1:
-            # multiple outputs: get index of maximum
-            y_model_maxidx = y_model.argmax(axis=1)
-            n_correct_predictions = np.sum(y_model_maxidx == y_true)
-        else:
-            # single output: threshold at 0.5
-            n_correct_predictions = np.sum((y_model>0.5) == y_true)
+        metrics = {}
+        if compute_accuracy:
+            metrics['n_correct'] = self.calc_accuracy(y_model, y_true)
         
         # compute loss
         loss = self.loss_func.forward(y_model, y_true)
         
         if forward_only:
             # Skip backward pass and update for validation data
-            return loss.sum(), n_correct_predictions
+            return loss.sum(), metrics
 
         # backward pass
         loss_gradient = self.loss_func.backward(y_model, y_true)
@@ -42,7 +33,7 @@ class OptimizerSGD():
         # update
         self.update(model)
             
-        return loss.sum(), n_correct_predictions
+        return loss.sum(), metrics
     
     def update(self, model):
         for layer in model.layers:
@@ -50,6 +41,18 @@ class OptimizerSGD():
             layer_gradients = layer.get_gradients()
             for key in layer_weights:
                 layer_weights[key] -= self.learning_rate * layer_gradients[key]
+                
+    def calc_accuracy(self, y_model, y_true):
+        if y_model.shape[1] == 1:
+            # single output neuron: threshold output at 0.5
+            y_model_predicted = (y_model>0.5)
+        else:
+            # multiple outputs: get index of maximum
+            y_model_predicted = y_model.argmax(axis=1)
+
+        n_correct_predictions = np.sum(y_model_predicted == y_true)
+        
+        return n_correct_predictions
 
 class OptimizerMomentum(OptimizerSGD):
     '''Momentum optimizer using the mean of gradients'''
@@ -76,6 +79,7 @@ class OptimizerMomentum(OptimizerSGD):
 
 class OptimizerADAM(OptimizerSGD):
     '''ADAM optimizer with adaptive moment estimation'''
+
     def __init__(self, loss_func, learning_rate):
         super().__init__(loss_func, learning_rate)
 
@@ -100,3 +104,18 @@ class OptimizerADAM(OptimizerSGD):
                 layer.v[key] = self.beta2  * layer.v[key] + (1 - self.beta2) * np.power(layer_gradients[key], 2) / (1 - self.beta2**self.t)
     
                 layer_weights[key] -= self.learning_rate / (np.sqrt(layer.v[key]) + self.eps) * layer.m[key]
+
+def batch_handler(X, y, batchsize, shuffle=False):
+    assert len(X) == len(y)
+    batchsize = min(batchsize, len(y))
+
+    if shuffle:
+        idxs = np.random.permutation((len(y)))
+
+    for start_idx in range(0, len(X) - batchsize + 1, batchsize):
+        if shuffle:
+            batch = idxs[start_idx:start_idx + batchsize]
+        else:
+            batch = slice(start_idx, start_idx + batchsize)
+
+        yield X[batch,:], y[batch]

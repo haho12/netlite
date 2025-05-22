@@ -1,25 +1,8 @@
-# Copyright (c): Hanno Homann, 2024-'25
-
 import numpy as np
 import time
 import matplotlib.pyplot as plt
 
 import netlite as nl
-
-def batch_handler(X, y, batchsize, shuffle=False):
-    assert len(X) == len(y)
-    batchsize = min(batchsize, len(y))
-
-    if shuffle:
-        idxs = np.random.permutation((len(y)))
-
-    for start_idx in range(0, len(X) - batchsize + 1, batchsize):
-        if shuffle:
-            batch = idxs[start_idx:start_idx + batchsize]
-        else:
-            batch = slice(start_idx, start_idx + batchsize)
-
-        yield X[batch,:], y[batch]
     
 def train(model, optimizer, X_train, y_train, X_valid=(), y_valid=(), n_epochs=10, batchsize=32):
     log = {}
@@ -31,11 +14,11 @@ def train(model, optimizer, X_train, y_train, X_valid=(), y_valid=(), n_epochs=1
         start_time = time.time()
 
         loss_sum = 0
-        n_correct_predictions_sum = 0
-        for x_batch, y_batch in batch_handler(X_train, y_train, batchsize=batchsize, shuffle=True):
-            loss, n_correct_predictions = optimizer.step(model, x_batch, y_batch)
+        n_correct_sum = 0
+        for x_batch, y_batch in nl.batch_handler(X_train, y_train, batchsize=batchsize, shuffle=True):
+            loss, metrics = optimizer.step(model, x_batch, y_batch)
             loss_sum += loss
-            n_correct_predictions_sum += n_correct_predictions
+            n_correct_sum += metrics['n_correct']
 
         end_time = time.time()
         elapsed_time = end_time - start_time
@@ -43,25 +26,22 @@ def train(model, optimizer, X_train, y_train, X_valid=(), y_valid=(), n_epochs=1
         
         loss_train_mean = loss_sum / len(y_train)
         log['loss_train'].append(loss_train_mean)
-        log['acc_train'].append(n_correct_predictions_sum / len(y_train))
+        log['acc_train'].append(n_correct_sum / len(y_train))
 
         if len(X_valid) > 0: # if validation data is available
-            loss_sum_valid, n_correct_predictions_valid = optimizer.step(model, X_valid, y_valid, forward_only=True)
+            loss_sum_valid, metrics = optimizer.step(model, X_valid, y_valid, forward_only=True)
             loss_valid_mean = loss_sum_valid / len(y_valid)
             log['loss_valid'].append(loss_valid_mean)
-            log['acc_valid'].append(n_correct_predictions_valid / len(y_valid))
+            log['acc_valid'].append(metrics['n_correct'] / len(y_valid))
             print(f'Epoch {epoch+1:3d} : loss_train {loss_train_mean:7.5f}, loss_valid {loss_valid_mean:7.5f}, acc_train {log["acc_train"][-1]:5.3f}, acc_valid {log["acc_valid"][-1]:5.3f}')
         else:
             print(f'Epoch {epoch+1:3d} : loss_train {loss_train_mean:7.1f}, acc_train {log["acc_train"][-1]:5.3f}')
-
-        # re-initialize ADAM optimizer after each epoch to improve stability
-        #optimizer.adam_t = 0
     
     return log
 
 if __name__ == '__main__':
     #testcase = 'xor'
-    testcase = 'mnist_fcn'   # fast fully-connected network, more overfitting
+    #testcase = 'mnist_fcn'   # fast fully-connected network, more overfitting
     testcase = 'mnist_lenet' # original LeNet CNN
     
     if testcase == 'xor':
@@ -161,7 +141,7 @@ if __name__ == '__main__':
         loss_func = nl.CrossEntropyLoss()
         
         learning_rate = 0.001
-        n_epochs  =  20 # 20 is enough, test acc stagnates at ~98.0%
+        n_epochs  =  50 # 20 is enough, test acc stagnates at ~98.0%
                         # 50 for AvgPooling, test acc <=98.5%
         batchsize =  32
         optim = 'adam'
@@ -175,14 +155,18 @@ if __name__ == '__main__':
         
     log = train(model, optimizer, X_train, y_train, X_test, y_test, n_epochs, batchsize)
 
-    plt.plot(log['loss_train'], label='training loss')
-    plt.plot(log['loss_valid'], label='validation loss')
+    plt.plot(log['loss_train'], label='training')
+    plt.plot(log['loss_valid'], label='validation')
     plt.legend(loc='best')
+    plt.xlabel('epoch')
+    plt.ylabel('loss')
     plt.grid()
     plt.show()
 
-    plt.plot(log['acc_train'], label='training accuracy')
-    plt.plot(log['acc_valid'], label='validation accuracy')
+    plt.plot(log['acc_train'], label='training')
+    plt.plot(log['acc_valid'], label='validation')
     plt.legend(loc='best')
+    plt.xlabel('epoch')
+    plt.ylabel('accuracy')
     plt.grid()
     plt.show()

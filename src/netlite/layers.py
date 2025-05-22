@@ -88,6 +88,7 @@ class FullyConnectedLayer(Layer):
         self.initialize_weights()
         
         # storage for adam momentums
+        # TODO: only used for FCN ?! -> move to optimizer...
         self.m = {}
         self.v = {}
 
