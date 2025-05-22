@@ -86,11 +86,6 @@ class FullyConnectedLayer(Layer):
         self.n_inputs = n_inputs
         self.n_outputs = n_outputs
         self.initialize_weights()
-        
-        # storage for momentums
-        # TODO: only used for FCN ?! -> move to optimizer...
-        self.m = {}
-        self.v = {}
 
     def initialize_weights(self):
         stddev = np.sqrt(2.0 / (self.n_inputs)) # msra
@@ -124,11 +119,6 @@ class ConvolutionalLayer(Layer):
         self.inc = inc
         self.outc = outc
         self.initialize_weights()
-        
-        # storage for momentums
-        # TODO: only used for FCN ?! -> move to optimizer...
-        self.m = {}
-        self.v = {}
         
     def initialize_weights(self):
         k = self.kernel_width

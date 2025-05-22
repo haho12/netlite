@@ -89,21 +89,31 @@ class OptimizerADAM(OptimizerSGD):
         self.eps = 1e-8
 
     def update(self, model):
+        if self.t == 0:
+            # initialize moments
+            self.m = []
+            self.v = []
+            for i, layer in enumerate(model.layers):
+                layer_weights   = layer.get_weights()
+                layer_gradients = layer.get_gradients()
+                mi = {} #  moment  buffer for i-th layer
+                vi = {} # variance buffer for i-th layer
+                for key in layer_weights:
+                    mi[key] = np.zeros_like(layer_gradients[key])
+                    vi[key] = np.zeros_like(layer_gradients[key])
+                self.m.append(mi)
+                self.v.append(vi)
+        
         self.t += 1
-        for layer in model.layers:
+        for i, layer in enumerate(model.layers):
             layer_weights   = layer.get_weights()
             layer_gradients = layer.get_gradients()
             
             for key in layer_weights:
-                if key not in layer.m:
-                    # init moment and variance buffers
-                    layer.m[key] = np.zeros_like(layer_gradients[key])
-                    layer.v[key] = np.zeros_like(layer_gradients[key])
+                self.m[i][key] = self.beta1  * self.m[i][key] + (1 - self.beta1) * layer_gradients[key] / (1 - self.beta1**self.t)
+                self.v[i][key] = self.beta2  * self.v[i][key] + (1 - self.beta2) * np.power(layer_gradients[key], 2) / (1 - self.beta2**self.t)
     
-                layer.m[key] = self.beta1  * layer.m[key] + (1 - self.beta1) * layer_gradients[key] / (1 - self.beta1**self.t)
-                layer.v[key] = self.beta2  * layer.v[key] + (1 - self.beta2) * np.power(layer_gradients[key], 2) / (1 - self.beta2**self.t)
-    
-                layer_weights[key] -= self.learning_rate / (np.sqrt(layer.v[key]) + self.eps) * layer.m[key]
+                layer_weights[key] -= self.learning_rate / (np.sqrt(self.v[i][key]) + self.eps) * self.m[i][key]
 
 def batch_handler(X, y, batchsize, shuffle=False):
     assert len(X) == len(y)
