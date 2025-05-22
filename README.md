@@ -5,20 +5,20 @@
 NetLite provides a light-weight training framework, designed for readability
 for learning the basic principles of neural networks in AI classes.
 
-**Exemplary learning tasks for AI classes:**
+**Exemplary learning tasks for AI classes using this framework:**
 - Take a given activation function (e.g. ReLU from layers.py) and use it as a template to create your own activation function (e.g. tanh).
-- 
+- Implement a robust loss function (e.g. Huber loss) a fit a regression line to noisy data.
 - Use debugger to step through optimization, compare with manual calculations.
 - Understand and compare different optimizers (SGD, Momentum, ADAM).
 
 **Performance:**
 - On LeNet, this framework achieves 99% accuracy on the MNIST validation data in about 150 seconds (on my laptop cpu).
-  - Efficient computation using numpy for most operations 
-    and a just-in-time compiled convolution using numba.
+  - computation using numpy for most operations
+  - just-in-time compilation using numba for convolutions
 - Data-loader allows to limit the number of images used, e.g. to train on just 10% of the MNIST data, 
   for even faster training during lab exercises and to get a feeling for over-fitting when not enough data is available.
 
-## Example 1: Train 2-layer model as an XOR classifier
+## Example 1: Training of a 2-layer model as an XOR classifier
 
 ```Python
 import numpy as np

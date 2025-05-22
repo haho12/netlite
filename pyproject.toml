@@ -17,6 +17,14 @@ classifiers = [
 ]
 license = "MIT"
 license-files = ["LICENSE"]
+dependencies = [
+    "gzip",
+    "matplotlib",
+    "numpy",
+    "numba",
+    "pickle",
+    "urllib",
+]
 
 [project.urls]
 Homepage = "https://github.com/haho12/netlite"
