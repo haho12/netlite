@@ -92,13 +92,6 @@ if __name__ == '__main__':
     elif testcase == 'mnist_fcn':
         X_train, y_train = nl.dataloader_mnist.load_train(num_images = 60000)
         X_test,  y_test  = nl.dataloader_mnist.load_valid(num_images = 10000)
-
-        # show some numbers
-        #fig, ax = plt.subplots(1,12, figsize=(12,1), dpi=100)
-        #for axis, idx in zip(fig.axes, np.arange(0, 0+12)):
-        #    axis.imshow(X_train[idx, :].reshape(28,28), cmap='gray')
-        #    axis.axis('off')
-        #plt.show()
         
         model = nl.NeuralNetwork([
                     nl.Flatten(), # convert image to vector
@@ -122,9 +115,9 @@ if __name__ == '__main__':
         X_test,  y_test  = nl.dataloader_mnist.load_valid(num_images = 10000)
 
         # show some numbers
-        #fig, ax = plt.subplots(1,12, figsize=(12,1), dpi=100)
-        #for axis, idx in zip(fig.axes, np.arange(0, 0+12)):
-        #    axis.imshow(X_train[idx, :].reshape(28,28), cmap='gray')
+        #fig, ax = plt.subplots(1, 6, figsize=(6,1), dpi=100)
+        #for axis, idx in zip(fig.axes, np.arange(0, 6)):
+        #    axis.imshow(X_train[idx, :, :, :], cmap='gray')
         #    axis.axis('off')
         #plt.show()
 
