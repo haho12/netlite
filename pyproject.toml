@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "netlite"
-version = "0.0.2"
+version = "0.0.3"
 authors = [
   { name="Hanno Homann", email="hanno.homann@example.com" },
 ]
@@ -18,12 +18,9 @@ classifiers = [
 license = "MIT"
 license-files = ["LICENSE"]
 dependencies = [
-    "gzip",
     "matplotlib",
     "numpy",
     "numba",
-    "pickle",
-    "urllib",
 ]
 
 [project.urls]
