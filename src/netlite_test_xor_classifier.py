@@ -1,21 +1,3 @@
-# NetLite
-
-A small white-box training framework for neural networks for education.
-
-Learning objectives:
-- Use debugger to step through optimization, compare with manual calculations
-- Understand and compare different optimizers (SGD, Momentum, ADAM)
-
-Achievements:
-- Data-loader allows to limits number of images used
-- On LeNet, this framework achieves 99% accuracy on the MNIST validation data in about 150 seconds (on my laptop cpu).
-  - Efficient computation using numpy for most operations 
-    and a just-in-time compiled convolution using numba.
-
-
-## First example: Train 2-layer model as an XOR classifier
-
-```Python
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -78,9 +60,3 @@ plt.xlabel('epoch')
 plt.ylabel('accuracy')
 plt.grid()
 plt.show()
-```
-
-## References
-
-[LeNet5](https://github.com/chuanqi305/LeNet5): A plain numpy implementation of LeNet5 with convolutional layers.  
-[JB Grabowski](http://www.jbgrabowski.com/notebooks/neural-net/): A Jupyter notebook using ADAM optimization for fully connected layers.

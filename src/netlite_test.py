@@ -42,7 +42,7 @@ def train(model, optimizer, X_train, y_train, X_valid=(), y_valid=(), n_epochs=1
 if __name__ == '__main__':
     testcase = 'xor'
     #testcase = 'mnist_fcn'   # fast fully-connected network, more overfitting
-    #testcase = 'mnist_lenet' # original LeNet CNN
+    testcase = 'mnist_lenet' # original LeNet CNN
     
     if testcase == 'xor':
         
