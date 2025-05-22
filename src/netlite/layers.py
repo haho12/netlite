@@ -25,58 +25,6 @@ class Layer(ABC):
         '''Return a dictionary of named gradients for each trainable parameter.'''
         return {} # default: no trainable parameters
 
-class ReLU(Layer):
-    '''Rectified linear unit activation'''
-    def forward(self, X):
-        self.X = X
-        return np.maximum(X, 0)
-    
-    def backward(self, grad_backward):
-        relu_gradient = self.X > 0 
-        return grad_backward * relu_gradient
-
-class LeakyReLU(Layer):
-    '''Rectified linear unit activation with a leak-factor'''
-    leak_factor = np.float32(0.1)
-    
-    def forward(self, X):
-        self.X = X
-        return ((X>0) + self.leak_factor*(X<0)) * X
-
-    def backward(self, grad_backward):
-        return ((self.X>0) + self.leak_factor*(self.X<0)) * grad_backward
-
-class Sigmoid(Layer):
-    '''Sigmoid activation'''
-    def forward(self, X):
-        self.X = X
-        self.Y = 1/(1 + np.exp(-X))
-        return self.Y
-    
-    def backward(self, grad_backward):
-        df = self.Y * (1 - self.Y)
-        return df * grad_backward
-
-class Softmax(Layer):
-    '''Softmax classifier'''
-    def forward(self, X):
-        softmax = np.exp(X) / np.exp(X).sum(axis=-1,keepdims=True)
-        return softmax
-    
-    def backward(self, grad_backward):
-        raise SystemExit("Error: Softmax backpropagation is not efficient and " + 
-                         "numerically less stable. " +
-                         "Use CrossEntropyLoss with logits instead!")
-
-class Flatten(Layer):
-    '''Flatten an input tensor to a vector'''
-    def forward(self, X):
-        self.X_shape = X.shape
-        return X.copy().reshape(X.shape[0], -1)
-
-    def backward(self, grad_backward):
-        return grad_backward.reshape(self.X_shape)
-    
 class FullyConnectedLayer(Layer):
     '''Fully connected aka Dense layer'''
     def __init__(self, n_inputs, n_outputs):
@@ -193,6 +141,58 @@ class MaxPoolingLayer(Layer):
         n, h, w, c = grad_backward.shape
         grad_backward_grid = grad_backward.reshape(n, h, 1, w, 1, c)
         return (grad_backward_grid * self.mask).reshape(n, h * 2, w * 2, c)
+
+class ReLU(Layer):
+    '''Rectified linear unit activation'''
+    def forward(self, X):
+        self.X = X
+        return np.maximum(X, 0)
+    
+    def backward(self, grad_backward):
+        relu_gradient = self.X > 0 
+        return grad_backward * relu_gradient
+
+class LeakyReLU(Layer):
+    '''Rectified linear unit activation with a leak-factor'''
+    leak_factor = np.float32(0.1)
+    
+    def forward(self, X):
+        self.X = X
+        return ((X>0) + self.leak_factor*(X<0)) * X
+
+    def backward(self, grad_backward):
+        return ((self.X>0) + self.leak_factor*(self.X<0)) * grad_backward
+
+class Sigmoid(Layer):
+    '''Sigmoid activation'''
+    def forward(self, X):
+        self.X = X
+        self.Y = 1/(1 + np.exp(-X))
+        return self.Y
+    
+    def backward(self, grad_backward):
+        df = self.Y * (1 - self.Y)
+        return df * grad_backward
+
+class Softmax(Layer):
+    '''Softmax classifier'''
+    def forward(self, X):
+        softmax = np.exp(X) / np.exp(X).sum(axis=-1, keepdims=True)
+        return softmax
+    
+    def backward(self, grad_backward):
+        raise SystemExit("Error: Softmax backpropagation is not efficient and " + 
+                         "numerically less stable. " +
+                         "Use CrossEntropyLoss with logits instead!")
+
+class Flatten(Layer):
+    '''Flatten an input tensor to a vector'''
+    def forward(self, X):
+        self.X_shape = X.shape
+        return X.copy().reshape(X.shape[0], -1)
+
+    def backward(self, grad_backward):
+        return grad_backward.reshape(self.X_shape)
 
 class AvgPoolingLayer(Layer):
     def forward(self, X):

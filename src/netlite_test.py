@@ -45,23 +45,29 @@ if __name__ == '__main__':
     testcase = 'mnist_lenet' # original LeNet CNN
     
     if testcase == 'xor':
-        model = nl.NeuralNetwork()
-        use_sigmoid = True
+        
+        use_sigmoid = False
         if use_sigmoid:
-            np.random.seed(1)
+            #np.random.seed(1)
             learning_rate = 2 # for Sigmoid activation function
-            model.add_layer(nl.layers.FullyConnectedLayer(n_inputs=2, n_outputs=2))
-            model.add_layer(nl.layers.Sigmoid())
-            model.add_layer(nl.layers.FullyConnectedLayer(n_inputs=2, n_outputs=1))
-            model.add_layer(nl.layers.Sigmoid())
+            
+            model = nl.NeuralNetwork([
+                        nl.FullyConnectedLayer(n_inputs=2, n_outputs=2),
+                        nl.Sigmoid(),
+                        nl.FullyConnectedLayer(n_inputs=2, n_outputs=1),
+                        nl.Sigmoid(),
+                    ])
         else:
-            np.random.seed(2)
+            #np.random.seed(2)
             learning_rate = 0.1 # for ReLU activation function
-            model.add_layer(nl.layers.FullyConnectedLayer(n_inputs=2, n_outputs=2))
-            model.add_layer(nl.layers.LeakyReLU())
-            model.add_layer(nl.layers.FullyConnectedLayer(n_inputs=2, n_outputs=1))
-            model.add_layer(nl.layers.LeakyReLU())
-    
+            
+            model = nl.NeuralNetwork([
+                        nl.FullyConnectedLayer(n_inputs=2, n_outputs=2),
+                        nl.LeakyReLU(),
+                        nl.FullyConnectedLayer(n_inputs=2, n_outputs=1),
+                        nl.LeakyReLU(),
+                    ])
+
         loss_func = nl.MseLoss()
         
         #                    x1 x2
@@ -97,13 +103,14 @@ if __name__ == '__main__':
         #    axis.axis('off')
         #plt.show()
         
-        model = nl.NeuralNetwork()
-        model.add_layer(nl.layers.FullyConnectedLayer(n_inputs=28**2, n_outputs=100))
-        model.add_layer(nl.layers.ReLU())
-        model.add_layer(nl.layers.FullyConnectedLayer(n_inputs=100, n_outputs=200))
-        model.add_layer(nl.layers.ReLU())
-        model.add_layer(nl.layers.FullyConnectedLayer(n_inputs=200, n_outputs=10))
-        model.add_layer(nl.layers.Softmax())
+        model = nl.NeuralNetwork([
+                    nl.FullyConnectedLayer(n_inputs=28**2, n_outputs=100),
+                    nl.ReLU(),
+                    nl.FullyConnectedLayer(n_inputs=100, n_outputs=200),
+                    nl.ReLU(),
+                    nl.FullyConnectedLayer(n_inputs=200, n_outputs=10),
+                    nl.Softmax(),
+                ])
 
         loss_func = nl.CrossEntropyLoss()
         
@@ -123,21 +130,21 @@ if __name__ == '__main__':
         #    axis.axis('off')
         #plt.show()
 
-        model = nl.NeuralNetwork()
-        model.add_layer(nl.layers.ConvolutionalLayer(5, 1, 6))
-        model.add_layer(nl.layers.ReLU())
-        model.add_layer(nl.layers.AvgPoolingLayer())
-        model.add_layer(nl.layers.ConvolutionalLayer(5, 6, 16))
-        model.add_layer(nl.layers.ReLU())
-        model.add_layer(nl.layers.AvgPoolingLayer())
-        model.add_layer(nl.layers.Flatten())
-        model.add_layer(nl.layers.FullyConnectedLayer(n_inputs=400, n_outputs=120))
-        model.add_layer(nl.layers.ReLU())
-        model.add_layer(nl.layers.FullyConnectedLayer(n_inputs=120, n_outputs=84))
-        model.add_layer(nl.layers.ReLU())
-        model.add_layer(nl.layers.FullyConnectedLayer(n_inputs=84, n_outputs=10))
-        model.add_layer(nl.layers.Softmax())
-
+        model = nl.NeuralNetwork([
+                    nl.ConvolutionalLayer(5, 1, 6),
+                    nl.ReLU(),
+                    nl.AvgPoolingLayer(),
+                    nl.ConvolutionalLayer(5, 6, 16),
+                    nl.ReLU(),
+                    nl.AvgPoolingLayer(),
+                    nl.Flatten(),
+                    nl.FullyConnectedLayer(n_inputs=400, n_outputs=120),
+                    nl.ReLU(),
+                    nl.FullyConnectedLayer(n_inputs=120, n_outputs=84),
+                    nl.ReLU(),
+                    nl.FullyConnectedLayer(n_inputs=84, n_outputs=10),
+                    nl.Softmax(),
+                ])
         loss_func = nl.CrossEntropyLoss()
         
         learning_rate = 0.001
