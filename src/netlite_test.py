@@ -33,20 +33,20 @@ def train(model, optimizer, X_train, y_train, X_valid=(), y_valid=(), n_epochs=1
             loss_valid_mean = loss_sum_valid / len(y_valid)
             log['loss_valid'].append(loss_valid_mean)
             log['acc_valid'].append(metrics['n_correct'] / len(y_valid))
-            print(f'Epoch {epoch+1:3d} : loss_train {loss_train_mean:7.5f}, loss_valid {loss_valid_mean:7.5f}, acc_train {log["acc_train"][-1]:5.3f}, acc_valid {log["acc_valid"][-1]:5.3f}')
+            print(f'Epoch {epoch+1:3d} : loss_train {loss_train_mean:7.4f}, loss_valid {loss_valid_mean:7.4f}, acc_train {log["acc_train"][-1]:5.3f}, acc_valid {log["acc_valid"][-1]:5.3f}')
         else:
-            print(f'Epoch {epoch+1:3d} : loss_train {loss_train_mean:7.1f}, acc_train {log["acc_train"][-1]:5.3f}')
+            print(f'Epoch {epoch+1:3d} : loss_train {loss_train_mean:7.4f}, acc_train {log["acc_train"][-1]:5.3f}')
     
     return log
 
 if __name__ == '__main__':
-    #testcase = 'xor'
+    testcase = 'xor'
     #testcase = 'mnist_fcn'   # fast fully-connected network, more overfitting
-    testcase = 'mnist_lenet' # original LeNet CNN
+    #testcase = 'mnist_lenet' # original LeNet CNN
     
     if testcase == 'xor':
         
-        use_sigmoid = False
+        use_sigmoid = True
         if use_sigmoid:
             #np.random.seed(1)
             learning_rate = 2 # for Sigmoid activation function
@@ -81,9 +81,9 @@ if __name__ == '__main__':
                            0,
                            0,
                            1)).reshape((4,1))
-        
-        X_test = X_train
-        y_test = y_train
+
+        X_test = ()
+        y_test = ()
         
         batchsize = 4
         n_epochs = 1000
@@ -92,9 +92,6 @@ if __name__ == '__main__':
     elif testcase == 'mnist_fcn':
         X_train, y_train = nl.dataloader_mnist.load_train(num_images = 60000)
         X_test,  y_test  = nl.dataloader_mnist.load_valid(num_images = 10000)
-        
-        X_train = X_train[:,2:-2,2:-2,0].reshape(X_train.shape[0], -1)
-        X_test  = X_test[:,2:-2,2:-2,0].reshape(X_test.shape[0], -1)
 
         # show some numbers
         #fig, ax = plt.subplots(1,12, figsize=(12,1), dpi=100)
@@ -104,7 +101,8 @@ if __name__ == '__main__':
         #plt.show()
         
         model = nl.NeuralNetwork([
-                    nl.FullyConnectedLayer(n_inputs=28**2, n_outputs=100),
+                    nl.Flatten(), # convert image to vector
+                    nl.FullyConnectedLayer(n_inputs=32**2, n_outputs=100),
                     nl.ReLU(),
                     nl.FullyConnectedLayer(n_inputs=100, n_outputs=200),
                     nl.ReLU(),
