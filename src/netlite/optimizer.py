@@ -60,22 +60,30 @@ class OptimizerMomentum(OptimizerSGD):
     def __init__(self, loss_func, learning_rate, beta=0.9):
         super().__init__(loss_func, learning_rate)
         self.beta = beta   # decay rate for momentum
+        self.m = None
 
     def update(self, model):
-        for layer in model.layers:
+        if self.m == None:
+            # initialize moments
+            self.m = []
+            for i, layer in enumerate(model.layers):
+                layer_weights   = layer.get_weights()
+                layer_gradients = layer.get_gradients()
+                mi = {} #  moment  buffer for i-th layer
+                for key in layer_weights:
+                    mi[key] = np.zeros_like(layer_gradients[key])
+                self.m.append(mi)
+
+        for i, layer in enumerate(model.layers):
             layer_weights = layer.get_weights()
             layer_gradients = layer.get_gradients()
 
             for key in layer_weights:
-                if key not in layer.m:
-                    # initialize momentum buffer
-                    layer.m[key] = np.zeros_like(layer_gradients[key])
-
                 # update momentum (low-pass filtered gradients)
-                layer.m[key] = self.beta * layer.m[key] + (1 - self.beta) * layer_gradients[key]
+                self.m[i][key] = self.beta * self.m[i][key] + (1 - self.beta) * layer_gradients[key]
 
                 # update using the smoothed gradients
-                layer_weights[key] -= self.learning_rate * layer.m[key]
+                layer_weights[key] -= self.learning_rate * self.m[i][key]
 
 class OptimizerADAM(OptimizerSGD):
     '''ADAM optimizer with adaptive moment estimation'''
