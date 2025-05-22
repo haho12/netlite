@@ -60,8 +60,6 @@ class Optimizer():
                 layer_gradients = layer.get_gradients()
                 
                 for key in layer_weights:
-                    layer_weights[key] -= self.learning_rate * layer_gradients[key]
-        
                     if self.adam_t == 1:
                         # init m and v
                         layer.m[key] = np.zeros_like(layer_gradients[key])
@@ -77,20 +75,20 @@ class Optimizer():
             
         return loss.sum(), n_correct_predictions
 
-    def batch_handler(self, X, y, batchsize, shuffle=False):
-        assert len(X) == len(y)
-        batchsize = min(batchsize, len(y))
+def batch_handler(X, y, batchsize, shuffle=False):
+    assert len(X) == len(y)
+    batchsize = min(batchsize, len(y))
 
+    if shuffle:
+        idxs = np.random.permutation((len(y)))
+
+    for start_idx in range(0, len(X) - batchsize + 1, batchsize):
         if shuffle:
-            idxs = np.random.permutation((len(y)))
+            batch = idxs[start_idx:start_idx + batchsize]
+        else:
+            batch = slice(start_idx, start_idx + batchsize)
 
-        for start_idx in range(0, len(X) - batchsize + 1, batchsize):
-            if shuffle:
-                batch = idxs[start_idx:start_idx + batchsize]
-            else:
-                batch = slice(start_idx, start_idx + batchsize)
-
-            yield X[batch,:], y[batch]
+        yield X[batch,:], y[batch]
     
 def train(model, optimizer, X_train, y_train, X_valid=(), y_valid=(),
           n_epochs=10, batchsize=32):
@@ -105,7 +103,7 @@ def train(model, optimizer, X_train, y_train, X_valid=(), y_valid=(),
 
         loss_sum = 0
         n_correct_predictions_sum = 0
-        for x_batch, y_batch in optimizer.batch_handler(X_train, y_train, batchsize=batchsize, shuffle=True):
+        for x_batch, y_batch in batch_handler(X_train, y_train, batchsize=batchsize, shuffle=True):
             loss, n_correct_predictions = optimizer.step(model, x_batch, y_batch)
             loss_sum += loss
             n_correct_predictions_sum += n_correct_predictions
@@ -134,8 +132,8 @@ def train(model, optimizer, X_train, y_train, X_valid=(), y_valid=(),
 
 if __name__ == '__main__':
     #testcase = 'xor'
-    #testcase = 'mnist_fcn'   # fast fully-connected network, more overfitting
-    testcase = 'mnist_lenet' # original LeNet CNN
+    testcase = 'mnist_fcn'   # fast fully-connected network, more overfitting
+    #testcase = 'mnist_lenet' # original LeNet CNN
     
     if testcase == 'xor':
         model = nl.NeuralNetwork()
