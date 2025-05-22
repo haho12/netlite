@@ -13,7 +13,8 @@ for learning the basic principles of neural networks in AI classes.
   for even faster training during lab exercises and to get a feeling for over-fitting when not enough data is available.
 
 ![Accuracy curve](./images/lenet_mnist_acc_curves.svg)
-*Figure 1: Accuracy of LeNet5 trained using NetLite's ADAM optimizer.*
+
+**Fig. 1:** *Accuracy of LeNet5 trained using NetLite's ADAM optimizer.*
 
 **Exemplary learning tasks for AI classes using this framework:**
 - Take a given activation function (e.g. ReLU from layers.py) and use it as a template to create your own activation function (e.g. tanh).
