@@ -96,4 +96,6 @@ plt.xlabel('epoch')
 plt.ylabel('accuracy')
 plt.title('Training LeNet on MNIST data')
 plt.grid()
+#plt.savefig("lenet_mnist_acc_curves.svg")
 plt.show()
+
