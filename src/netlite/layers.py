@@ -87,7 +87,7 @@ class FullyConnectedLayer(Layer):
         self.n_outputs = n_outputs
         self.initialize_weights()
         
-        # storage for adam momentums
+        # storage for momentums
         # TODO: only used for FCN ?! -> move to optimizer...
         self.m = {}
         self.v = {}
@@ -120,13 +120,21 @@ class FullyConnectedLayer(Layer):
             
 class ConvolutionalLayer(Layer):
     def __init__(self, kernel_width, inc, outc):
-        self.kernel = kernel_width
-        k = kernel_width
+        self.kernel_width = kernel_width
         self.inc = inc
         self.outc = outc
-        stddev = np.sqrt(2.0 / (k**2 * inc)) # msra
-        self.weights = np.random.normal(0.0, stddev, size=(k, k, inc, outc)).astype('f')
-        self.bias = np.zeros(outc, dtype='f')
+        self.initialize_weights()
+        
+        # storage for momentums
+        # TODO: only used for FCN ?! -> move to optimizer...
+        self.m = {}
+        self.v = {}
+        
+    def initialize_weights(self):
+        k = self.kernel_width
+        stddev = np.sqrt(2.0 / (k**2 * self.inc)) # msra
+        self.weights = np.random.normal(0.0, stddev, size=(k, k, self.inc, self.outc)).astype('f')
+        self.bias = np.zeros(self.outc, dtype='f')
 
     @staticmethod
     @numba.njit(parallel=True)
@@ -139,7 +147,7 @@ class ConvolutionalLayer(Layer):
     
     def forward(self, X):
         self.X = X
-        k = self.kernel
+        k = self.kernel_width
         n, h, w, c = X.shape
         h_out = h - (k - 1)
         w_out = w - (k - 1)
@@ -152,19 +160,19 @@ class ConvolutionalLayer(Layer):
 
     def backward(self, grad_backward):
         n, h, w, c = grad_backward.shape
-        k = self.kernel
+        k = self.kernel_width
         h_in = h + (k - 1)
         w_in = w + (k - 1)
 
-        self.weights_diff = np.zeros((k, k, self.inc, self.outc), dtype='f')
+        self.grad_weights = np.zeros((k, k, self.inc, self.outc), dtype='f')
         for i in range(k):
             for j in range(k):
                 # inp = (n, h, w, cin) => (n*h*w, cin) => (cin, n*h*w)
                 inp = self.X[:, i:i+h, j:j+w, :].reshape(-1, self.inc).T
                 # diff = (n, h, w, cout) => (n*h*w, cout)
                 diff_out = grad_backward.reshape(-1, self.outc)
-                self.weights_diff[i, j, :, :] = inp.dot(diff_out)
-        self.bias_diff = np.sum(grad_backward, axis=(0, 1, 2))
+                self.grad_weights[i, j, :, :] = inp.dot(diff_out)
+        self.grad_bias = np.sum(grad_backward, axis=(0, 1, 2))
 
         pad = k - 1
         grad_backward_pad = np.pad(grad_backward, ((0, 0), (pad, pad), (pad, pad), (0, 0)), 'constant')
@@ -173,6 +181,14 @@ class ConvolutionalLayer(Layer):
         self.conv(grad_backward_pad, rotated_weight, grad_input, h_in, w_in, n, k)
 
         return grad_input
+    
+    def get_weights(self):
+        # return a dictionary of named parameters
+        return {'weights' : self.weights, 'bias': self.bias}
+
+    def get_gradients(self):
+        # return a dictionary of named gradients
+        return {'weights' : self.grad_weights, 'bias': self.grad_bias}
 
 class MaxPoolingLayer(Layer):
     def forward(self, X):

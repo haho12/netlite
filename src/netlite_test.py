@@ -141,8 +141,7 @@ if __name__ == '__main__':
         loss_func = nl.CrossEntropyLoss()
         
         learning_rate = 0.001
-        n_epochs  =  50 # 20 is enough, test acc stagnates at ~98.0%
-                        # 50 for AvgPooling, test acc <=98.5%
+        n_epochs  =  20 # test acc at ~99% with AvgPooling
         batchsize =  32
         optim = 'adam'
 
