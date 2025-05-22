@@ -6,6 +6,7 @@
 from .layers import *
 from .loss_functions import *
 from .neural_network import *
+from .optimizer import *
 
 from .dataloader_mnist import *
 from .dataloader_cifar10 import *
