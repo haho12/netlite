@@ -16,27 +16,31 @@ def load_valid(input_path = 'mnist_raw', num_images = 10000):
     labels_file = 't10k-labels-idx1-ubyte.gz'
     return load(input_path, images_file, labels_file, num_images)
 
-def download(download_dir, filename):
+def download(download_dir, filename, verbose=False):
     if not os.path.isdir(download_dir):
         os.mkdir(download_dir)
-    urls = ["http://yann.lecun.com/exdb/mnist/",
-            "https://huggingface.co/datasets/dmitva/the-mnist-database/blob/main/",
-            "https://wuecampus.uni-wuerzburg.de/moodle/pluginfile.php/4698779/mod_folder/content/0/",
-            "https://huggingface.co/spaces/chrisjay/mnist-adversarial/raw/603879aac618aca69749a8a9172daec23a9dd2c4/files/MNIST/raw/",
-           ] 
+    mirrors = ["http://yann.lecun.com/exdb/mnist/",
+               "https://ossci-datasets.s3.amazonaws.com/mnist/",
+               "https://wuecampus.uni-wuerzburg.de/moodle/pluginfile.php/4698779/mod_folder/content/0/",
+           ]
     target_file = os.path.join(download_dir, filename)
     print("Downloading '" + filename + "' : ")
-    for url in urls:
+    for url in mirrors:
         source_file = url + filename
         try:
-            #print(f"Attempting to download: {source_file}")
+            if verbose:
+                print(f"Attempting to download: {source_file}")
             urllib.request.urlretrieve(source_file, target_file)
-            #print(f"Successfully downloaded: {target_file}")
-            print('+')
+            if verbose:
+                print(f"Successfully downloaded: {target_file}")
+            else:
+                print('+')
             break
         except Exception as e:
-            #print(f"Failed to download {source_file}: {e}")
-            print('-')
+            if verbose:
+                print(f"Failed to download {source_file}: {e}")
+            else:
+                print('-', end='')
             continue
 
 def load(input_path, images_file, labels_file, num_images_max):
