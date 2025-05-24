@@ -35,7 +35,8 @@ class CrossEntropyLoss(LossFunction):
     def forward(self, logits, y_true):
         # input:  model outputs (logits) and true class indices
         # output: softmax cross-entropy loss
-        assert(y_true.dtype == np.uint8)
+        assert np.issubdtype(y_true.dtype, np.integer), f"Expected integer dtype but got {y_true.dtype}"
+        
         true_class_logits = logits[np.arange(len(logits)), y_true]
         
         cross_entropy = - true_class_logits + np.log(np.sum(np.exp(logits), axis=-1))

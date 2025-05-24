@@ -124,7 +124,7 @@ class OptimizerADAM(OptimizerSGD):
                 layer_weights[key] -= self.learning_rate / (np.sqrt(self.v[i][key]) + self.eps) * self.m[i][key]
 
 def batch_handler(X, y, batchsize, shuffle=False):
-    assert len(X) == len(y)
+    assert len(X) == len(y), f'Number of data {len(X)} does not match number of labels {len(y)}'
     batchsize = min(batchsize, len(y))
 
     if shuffle:

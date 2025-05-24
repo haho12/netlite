@@ -59,9 +59,9 @@ def load(input_path, images_file, labels_file, num_images_max):
     num_images = int.from_bytes(images_byte.read(4),  byteorder='big')
     img_height = int.from_bytes(images_byte.read(4),  byteorder='big')
     img_width  = int.from_bytes(images_byte.read(4),  byteorder='big')
-    assert(magic_num == 2051)
-    assert(img_height == 28)
-    assert(img_width == 28)
+    assert magic_num == 2051, 'invalid raw file'
+    assert img_height == 28, 'invalid raw file'
+    assert img_width == 28, 'invalid raw file'
     
     num_images_max = min(num_images, num_images_max)
 
@@ -74,8 +74,8 @@ def load(input_path, images_file, labels_file, num_images_max):
     # read labels
     magic_num  = int.from_bytes(labels_byte.read(4),  byteorder='big')
     num_labels = int.from_bytes(labels_byte.read(4),  byteorder='big')
-    assert(magic_num == 2049)
-    assert(num_labels == num_images)
+    assert magic_num == 2049, 'invalid label file'
+    assert num_labels == num_images, 'invalid label file'
 
     buf = labels_byte.read(num_images_max)    
     labels = np.frombuffer(buf, dtype=np.uint8)

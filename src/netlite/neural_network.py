@@ -25,3 +25,21 @@ class NeuralNetwork():
 
         for layer in self.layers[start::-1]:
             gradient_backward = layer.backward(gradient_backward)
+            
+    def print(self, test_input=None):
+        print(f'Feed-forward network with {len(self.layers)} layers:')
+        
+        if len(self.layers) == 0:
+            print('- no layers')
+            return
+        
+        if test_input is None:
+            if not hasattr(self.layers[0], 'X'):        
+                print('forward() has not been called yet - provide test_input to get layer size info')
+                return
+            test_input = self.layers[0].X
+        
+        Xin = test_input
+        for layer in self.layers:
+            Xin = layer.print(Xin)
+            

@@ -15,6 +15,14 @@ class Layer(ABC):
         '''Propagate gradient backward through the layer.'''
         pass
 
+    def print(self, Xin):
+        '''Print layer properties.'''
+        Xout = self.forward(Xin)
+        print(f'- {self.__class__.__name__}:')
+        print(f'  - in ={Xin.shape}')
+        print(f'  - out={Xout.shape}')        
+        return Xout
+
     def get_weights(self):
         '''Return a dictionary of named trainable parameters.
            The parameters are returned by reference to a numpy array
@@ -84,6 +92,7 @@ class ConvolutionalLayer(Layer):
                 output[:, i, j, :] = out.reshape(n, -1)
     
     def forward(self, X):
+        assert len(X.shape)==4, 'ConvolutionalLayer: input must have dim=4'
         self.X = X
         k = self.kernel_width
         n, h, w, c = X.shape
@@ -128,20 +137,6 @@ class ConvolutionalLayer(Layer):
         # return a dictionary of named gradients
         return {'weights' : self.grad_weights, 'bias': self.grad_bias}
 
-class MaxPoolingLayer(Layer):
-    def forward(self, X):
-        n, h, w, c = X.shape
-        assert(h%2==0 and w%2==0)
-        X_grid = X.reshape(n, h // 2, 2, w // 2, 2, c)
-        out = np.max(X_grid, axis=(2, 4))
-        self.mask = (out.reshape(n, h // 2, 1, w // 2, 1, c) == X_grid)
-        return out
-
-    def backward(self, grad_backward):
-        n, h, w, c = grad_backward.shape
-        grad_backward_grid = grad_backward.reshape(n, h, 1, w, 1, c)
-        return (grad_backward_grid * self.mask).reshape(n, h * 2, w * 2, c)
-
 class ReLU(Layer):
     '''Rectified linear unit activation'''
     def forward(self, X):
@@ -177,6 +172,7 @@ class Sigmoid(Layer):
 class Softmax(Layer):
     '''Softmax classifier'''
     def forward(self, X):
+        self.X = X
         softmax = np.exp(X) / np.exp(X).sum(axis=-1, keepdims=True)
         return softmax
     
@@ -188,16 +184,32 @@ class Softmax(Layer):
 class Flatten(Layer):
     '''Flatten an input tensor to a vector'''
     def forward(self, X):
-        self.X_shape = X.shape
+        self.X = X
         return X.copy().reshape(X.shape[0], -1)
 
     def backward(self, grad_backward):
-        return grad_backward.reshape(self.X_shape)
+        return grad_backward.reshape(self.X.shape)
+
+class MaxPoolingLayer(Layer):
+    def forward(self, X):
+        self.X = X
+        n, h, w, c = X.shape
+        assert h%2==0 and w%2==0, 'input width and height must be even'
+        X_grid = X.reshape(n, h // 2, 2, w // 2, 2, c)
+        out = np.max(X_grid, axis=(2, 4))
+        self.mask = (out.reshape(n, h // 2, 1, w // 2, 1, c) == X_grid)
+        return out
+
+    def backward(self, grad_backward):
+        n, h, w, c = grad_backward.shape
+        grad_backward_grid = grad_backward.reshape(n, h, 1, w, 1, c)
+        return (grad_backward_grid * self.mask).reshape(n, h * 2, w * 2, c)
 
 class AvgPoolingLayer(Layer):
     def forward(self, X):
+        self.X = X
         n, h, w, c = X.shape
-        assert(h%2==0 and w%2==0)
+        assert h%2==0 and w%2==0, 'input width and height must be even'
         X_grid = X.reshape(n, h // 2, 2, w // 2, 2, c)
         out = np.mean(X_grid, axis=(2, 4))
         self.mask = np.ones_like(X_grid) * (1/4)
@@ -210,6 +222,7 @@ class AvgPoolingLayer(Layer):
 
 class GlobalAvgPoolingLayer(Layer):
     def forward(self, X):
+        self.X = X
         n, h, w, c = X.shape
         out = np.mean(X, axis=(1, 2))
         self.mask = np.ones_like(X) * (1/(h*w))
@@ -218,4 +231,3 @@ class GlobalAvgPoolingLayer(Layer):
     def backward(self, grad_backward):
         n, c = grad_backward.shape    
         return grad_backward.reshape(n, 1, 1, c) * self.mask
-
