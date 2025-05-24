@@ -1,9 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import sys
+import os
 
+# add parent folder with netlite source to path
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, parent_dir)
 import netlite as nl
-    
-def train(model, optimizer, X_train, y_train, n_epochs=10, batchsize=32):
+
+def training_loop(model, optimizer, X_train, y_train, n_epochs=10, batchsize=32):
     log = {}
     log['loss_train'] = []
     log['acc_train'] = []
@@ -45,7 +50,7 @@ y_train = np.array((1,
 
 optimizer = nl.OptimizerSGD(loss_func=nl.MseLoss(), learning_rate=2)
         
-log = train(model, optimizer, X_train, y_train, n_epochs=500, batchsize=4)
+log = training_loop(model, optimizer, X_train, y_train, n_epochs=500, batchsize=4)
 
 plt.plot(log['loss_train'], label='training')
 plt.legend(loc='best')

@@ -1,10 +1,15 @@
 import numpy as np
 import time
 import matplotlib.pyplot as plt
+import sys
+import os
 
+# add parent folder with netlite source to path
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, parent_dir)
 import netlite as nl
     
-def train(model, optimizer, X_train, y_train, X_valid=(), y_valid=(), n_epochs=10, batchsize=32):
+def training_loop(model, optimizer, X_train, y_train, X_valid=(), y_valid=(), n_epochs=10, batchsize=32):
     log = {}
     log['loss_train'] = []
     log['loss_valid'] = []
@@ -78,7 +83,7 @@ batchsize =  32
 
 optimizer = nl.OptimizerADAM(loss_func, learning_rate)
 
-log = train(model, optimizer, X_train, y_train, X_test, y_test, n_epochs, batchsize)
+log = training_loop(model, optimizer, X_train, y_train, X_test, y_test, n_epochs, batchsize)
 
 plt.plot(log['loss_train'], label='training')
 plt.plot(log['loss_valid'], label='validation')
