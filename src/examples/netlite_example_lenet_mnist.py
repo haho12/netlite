@@ -61,10 +61,10 @@ for axis, idx in zip(fig.axes, np.arange(0, 6)):
 plt.show()
 
 model = nl.NeuralNetwork([
-            nl.ConvolutionalLayer(5, 1, 6),
+            nl.ConvolutionalLayer(kernel_size=5, in_channels=1, out_channels=6),
             nl.ReLU(),
             nl.AvgPoolingLayer(),
-            nl.ConvolutionalLayer(5, 6, 16),
+            nl.ConvolutionalLayer(kernel_size=5, in_channels=6, out_channels=16),
             nl.ReLU(),
             nl.AvgPoolingLayer(),
             nl.Flatten(),
@@ -75,6 +75,8 @@ model = nl.NeuralNetwork([
             nl.FullyConnectedLayer(n_inputs=84, n_outputs=10),
             nl.Softmax(),
         ])
+
+model.print(input_shape=(1,32,32,1))
 loss_func = nl.CrossEntropyLoss()
 
 learning_rate = 0.001

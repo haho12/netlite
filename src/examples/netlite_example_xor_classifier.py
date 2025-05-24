@@ -35,6 +35,7 @@ model = nl.NeuralNetwork([
             nl.FullyConnectedLayer(n_inputs=2, n_outputs=1),
             nl.Sigmoid(),
         ])
+model.print(input_shape=(4,2))
 
 # input               x1 x2
 X_train = np.array((( 0, 0),

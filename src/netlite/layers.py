@@ -34,7 +34,9 @@ class Layer(ABC):
         return {} # default: no trainable parameters
 
 class FullyConnectedLayer(Layer):
-    '''Fully connected aka Dense layer'''
+    '''Fully connected aka Dense layer
+       - data order: (batch, channels)
+    '''
     def __init__(self, n_inputs, n_outputs):
         # n_inputs:  number of input channels
         # n_outputs: number of output channels
@@ -44,11 +46,12 @@ class FullyConnectedLayer(Layer):
         self.initialize_weights()
 
     def initialize_weights(self):
-        stddev = np.sqrt(2.0 / (self.n_inputs)) # msra
+        stddev = np.sqrt(2.0 / (self.n_inputs)) # msra initialization
         self.weights = np.random.normal(0.0, stddev, size=(self.n_inputs, self.n_outputs)).astype('f')
         self.bias = np.zeros((1, self.n_outputs), dtype='f')
 
     def forward(self, X):
+        assert len(X.shape)==2, 'FullyConnectedLayer: input must have dim=2'
         self.X = X
         return X @ self.weights + self.bias
     
@@ -70,17 +73,20 @@ class FullyConnectedLayer(Layer):
         return {'weights' : self.grad_weights, 'bias': self.grad_bias}
             
 class ConvolutionalLayer(Layer):
-    def __init__(self, kernel_width, inc, outc):
-        self.kernel_width = kernel_width
-        self.inc = inc
-        self.outc = outc
+    '''Convolutional layer
+       - data order: (batch, height, width, channels)
+    '''
+    def __init__(self, kernel_size, in_channels, out_channels):
+        self.kernel_size = kernel_size
+        self.in_channels = in_channels
+        self.out_channels = out_channels
         self.initialize_weights()
         
     def initialize_weights(self):
-        k = self.kernel_width
-        stddev = np.sqrt(2.0 / (k**2 * self.inc)) # msra
-        self.weights = np.random.normal(0.0, stddev, size=(k, k, self.inc, self.outc)).astype('f')
-        self.bias = np.zeros(self.outc, dtype='f')
+        k = self.kernel_size
+        stddev = np.sqrt(2.0 / (k**2 * self.in_channels)) # msra initialization
+        self.weights = np.random.normal(0.0, stddev, size=(k, k, self.in_channels, self.out_channels)).astype('f')
+        self.bias = np.zeros(self.out_channels, dtype='f')
 
     @staticmethod
     @numba.njit(parallel=True)
@@ -93,38 +99,39 @@ class ConvolutionalLayer(Layer):
     
     def forward(self, X):
         assert len(X.shape)==4, 'ConvolutionalLayer: input must have dim=4'
+        assert X.dtype==np.float32, 'ConvolutionalLayer: input dtype must be float32'
         self.X = X
-        k = self.kernel_width
+        k = self.kernel_size
         n, h, w, c = X.shape
         h_out = h - (k - 1)
         w_out = w - (k - 1)
 
         output = np.tile(self.bias, (n, h_out, w_out, 1))
-        weights = self.weights.reshape(-1, self.outc)
+        weights = self.weights.reshape(-1, self.out_channels)
         self.conv(X, weights, output, h_out, w_out, n, k)
         
         return output
 
     def backward(self, grad_backward):
         n, h, w, c = grad_backward.shape
-        k = self.kernel_width
+        k = self.kernel_size
         h_in = h + (k - 1)
         w_in = w + (k - 1)
 
-        self.grad_weights = np.zeros((k, k, self.inc, self.outc), dtype='f')
+        self.grad_weights = np.zeros((k, k, self.in_channels, self.out_channels), dtype='f')
         for i in range(k):
             for j in range(k):
                 # inp = (n, h, w, cin) => (n*h*w, cin) => (cin, n*h*w)
-                inp = self.X[:, i:i+h, j:j+w, :].reshape(-1, self.inc).T
+                inp = self.X[:, i:i+h, j:j+w, :].reshape(-1, self.in_channels).T
                 # diff = (n, h, w, cout) => (n*h*w, cout)
-                diff_out = grad_backward.reshape(-1, self.outc)
+                diff_out = grad_backward.reshape(-1, self.out_channels)
                 self.grad_weights[i, j, :, :] = inp.dot(diff_out)
         self.grad_bias = np.sum(grad_backward, axis=(0, 1, 2))
 
         pad = k - 1
         grad_backward_pad = np.pad(grad_backward, ((0, 0), (pad, pad), (pad, pad), (0, 0)), 'constant')
-        rotated_weight = self.weights[::-1, ::-1, :, :].transpose(0, 1, 3, 2).reshape(-1, self.inc)
-        grad_input = np.zeros((n, h_in, w_in, self.inc), dtype='f')
+        rotated_weight = self.weights[::-1, ::-1, :, :].transpose(0, 1, 3, 2).reshape(-1, self.in_channels)
+        grad_input = np.zeros((n, h_in, w_in, self.in_channels), dtype='f')
         self.conv(grad_backward_pad, rotated_weight, grad_input, h_in, w_in, n, k)
 
         return grad_input

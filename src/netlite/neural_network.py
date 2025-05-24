@@ -1,3 +1,5 @@
+import numpy as np
+
 class NeuralNetwork():
     def __init__(self, layers = []):
         self.layers = layers
@@ -26,20 +28,20 @@ class NeuralNetwork():
         for layer in self.layers[start::-1]:
             gradient_backward = layer.backward(gradient_backward)
             
-    def print(self, test_input=None):
+    def print(self, input_shape=None):
         print(f'Feed-forward network with {len(self.layers)} layers:')
         
         if len(self.layers) == 0:
             print('- no layers')
             return
         
-        if test_input is None:
+        if input_shape is None:
             if not hasattr(self.layers[0], 'X'):        
                 print('forward() has not been called yet - provide test_input to get layer size info')
                 return
-            test_input = self.layers[0].X
+            input_shape = self.layers[0].X.shape
         
-        Xin = test_input
+        Xin = np.zeros(input_shape, dtype='f')
         for layer in self.layers:
             Xin = layer.print(Xin)
             
