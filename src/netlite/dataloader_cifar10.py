@@ -2,6 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+import sys
 import os.path
 import tarfile 
 import urllib.request
@@ -38,9 +39,12 @@ def download(download_dir, filename):
 
 def extract(download_dir, filename):
     targetfile = os.path.join(download_dir, filename)
-    tar_file = tarfile.open(targetfile) 
-    tar_file.extractall(download_dir)
-    tar_file.close() 
+    
+    with tarfile.open(targetfile) as tar:
+        if sys.version_info >= (3, 12):
+            tar.extractall(path=download_dir, filter=lambda m, _: m if m.isreg() else None)
+        else:
+            tar.extractall(path=download_dir)
 
 def load(input_path, images_file, num_images_max):
     gz_filename = 'cifar-10-python.tar.gz'
