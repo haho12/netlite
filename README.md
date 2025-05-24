@@ -6,7 +6,8 @@ NetLite provides a light-weight training framework, designed for readability
 for learning the basic principles of neural networks in AI classes.
 
 **Performance:**
-- On LeNet, this framework achieves 99% accuracy on the MNIST validation data in just 150 seconds (on my laptop cpu).
+- On LeNet, this framework achieves 99% accuracy on the MNIST validation data within a few epochs, taking less than 30 seconds per epoch which is roughly on par with PyTorch (on my laptop cpu).
+- Optimizations:
   - computation using numpy for most operations
   - just-in-time compilation using numba for convolutions
 - Data-loader allows to limit the number of images used, e.g. to train on just 10% of the MNIST data, 
