@@ -17,7 +17,7 @@ class LossFunction(ABC):
         pass
     
 class MseLoss(LossFunction):
-    # mean squared error loss
+    '''Mean squared error loss'''
     
     def forward(self, y_model, y_true):
         loss = np.sum(0.5 * (y_model-y_true)**2)
@@ -27,6 +27,11 @@ class MseLoss(LossFunction):
         return y_model - y_true
 
 class HuberLoss(LossFunction):
+    '''Huber loss function
+       - Quadratic loss (L2 norm) for small errors (z < delta),
+         where delta is approx. the data standard deviation.
+       - Linear loss (L1 norm) beyond for robustness against outliers.
+    '''
     def __init__(self, delta):
         super().__init__()
         self.delta = delta
@@ -58,6 +63,9 @@ class HuberLoss(LossFunction):
         return grad
 
 class CrossEntropyLoss(LossFunction):
+    ''' Multi-class cross-entroy loss
+        for training of a softmax classifier.
+    '''
     def __init__(self):
         '''The cross-entropy loss is trained using logits as the model output,
            i.e. the softmax probabilities are not computed during training.'''

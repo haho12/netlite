@@ -119,22 +119,24 @@ class ConvolutionalLayer(Layer):
         h_in = h + (k - 1)
         w_in = w + (k - 1)
 
+        # compute gradients for weights
         self.grad_weights = np.zeros((k, k, self.in_channels, self.out_channels), dtype='f')
         for i in range(k):
             for j in range(k):
-                # inp = (n, h, w, cin) => (n*h*w, cin) => (cin, n*h*w)
-                inp = self.X[:, i:i+h, j:j+w, :].reshape(-1, self.in_channels).T
-                # diff = (n, h, w, cout) => (n*h*w, cout)
-                diff_out = grad_backward.reshape(-1, self.out_channels)
-                self.grad_weights[i, j, :, :] = inp.dot(diff_out)
+                # reshape input: (n, h, w, cin) --> (n*h*w, cin) --> (cin, n*h*w)
+                Xr = self.X[:, i:i+h, j:j+w, :].reshape(-1, self.in_channels).T
+                # reshape grad_backward: (n, h, w, cout) --> (n*h*w, cout)
+                Gr = grad_backward.reshape(-1, self.out_channels)
+                self.grad_weights[i, j, :, :] = Xr.dot(Gr)
+        # compute gradients for bias
         self.grad_bias = np.sum(grad_backward, axis=(0, 1, 2))
 
+        # compute and return gradients for input
         pad = k - 1
         grad_backward_pad = np.pad(grad_backward, ((0, 0), (pad, pad), (pad, pad), (0, 0)), 'constant')
         rotated_weight = self.weights[::-1, ::-1, :, :].transpose(0, 1, 3, 2).reshape(-1, self.in_channels)
         grad_input = np.zeros((n, h_in, w_in, self.in_channels), dtype='f')
         self.conv(grad_backward_pad, rotated_weight, grad_input, h_in, w_in, n, k)
-
         return grad_input
     
     def get_weights(self):
