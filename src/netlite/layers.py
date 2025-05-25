@@ -52,6 +52,7 @@ class FullyConnectedLayer(Layer):
 
     def forward(self, X):
         assert len(X.shape)==2, 'FullyConnectedLayer: input must have dim=2'
+        assert X.shape[1] == self.n_inputs, 'FullyConnectedLayer: invalid number of input channels'
         self.X = X
         return X @ self.weights + self.bias
     
