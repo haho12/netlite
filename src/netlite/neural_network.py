@@ -37,7 +37,7 @@ class NeuralNetwork():
         
         if input_shape is None:
             if not hasattr(self.layers[0], 'X'):        
-                print('forward() has not been called yet - provide test_input to get layer size info')
+                print('forward() has not been called yet - provide input_shape to get layer size info')
                 return
             input_shape = self.layers[0].X.shape
         
