@@ -4,7 +4,7 @@ import sys
 import os
 
 # add parent folder with netlite source to path
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src'))
 sys.path.insert(0, parent_dir)
 import netlite as nl
 

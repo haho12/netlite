@@ -241,3 +241,43 @@ class GlobalAvgPoolingLayer(Layer):
     def backward(self, grad_backward):
         n, c = grad_backward.shape    
         return grad_backward.reshape(n, 1, 1, c) * self.mask
+
+class BatchNorm(Layer):
+    def forward(self, X):
+        training_mode = (X.shape[0] > 1)
+        self.beta = 0.9
+        self.eps  = 1e-7
+        
+        if training_mode:
+            # compute batch statistics
+            if len(X.shape)==2:
+                batch_mean = np.mean(X, axis=0, keepdims=True)
+                batch_var = np.var(X, axis=0, keepdims=True)
+            else:
+                assert len(X.shape)==4, 'Expecting image tensor.'
+                batch_mean = np.mean(X, axis=(0,1,2), keepdims=True)
+                batch_var = np.var(X, axis=(0,1,2), keepdims=True)
+
+            # soft updates
+            if not hasattr(self, 'running_mean'):
+                # initialization
+                self.running_mean = batch_mean
+                self.running_var  = batch_var
+            else:
+                self.running_mean = self.beta*self.running_mean + (1-self.beta)*batch_mean
+                self.running_var  = self.beta*self.running_var  + (1-self.beta)*batch_var
+
+            # normalize
+            x_out = (X - self.running_mean) / np.sqrt(self.running_var + self.eps)
+        else:
+            # Use running averages at inference
+            x_out = (X - self.running_mean) / np.sqrt(self.running_var + self.eps)
+
+        return x_out
+
+    def backward(self, grad_backward):
+        # gradient wrt input
+        assert hasattr(self, 'running_var'), 'BatchNorm forward must be called first.'
+        dx = grad_backward / np.sqrt(self.running_var + self.eps)
+
+        return dx

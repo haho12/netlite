@@ -24,7 +24,7 @@ def download(download_dir, filename, verbose=False):
                "https://wuecampus.uni-wuerzburg.de/moodle/pluginfile.php/4698779/mod_folder/content/0/",
            ]
     target_file = os.path.join(download_dir, filename)
-    print("Downloading '" + filename + "' : ")
+    print("Downloading '" + filename + "' : ", end='')
     for url in mirrors:
         source_file = url + filename
         try:
