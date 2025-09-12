@@ -250,8 +250,13 @@ class BatchNorm(Layer):
         
         if training_mode:
             # compute batch statistics
-            batch_mean = np.mean(X, axis=0, keepdims=True)
-            batch_var = np.var(X, axis=0, keepdims=True)
+            if len(X.shape)==2:
+                batch_mean = np.mean(X, axis=0, keepdims=True)
+                batch_var = np.var(X, axis=0, keepdims=True)
+            else:
+                assert len(X.shape)==4, 'Expecting image tensor.'
+                batch_mean = np.mean(X, axis=(0,1,2), keepdims=True)
+                batch_var = np.var(X, axis=(0,1,2), keepdims=True)
 
             # soft updates
             if not hasattr(self, 'running_mean'):
@@ -259,8 +264,8 @@ class BatchNorm(Layer):
                 self.running_mean = batch_mean
                 self.running_var  = batch_var
             else:
-                self.running_mean = self.beta*self.running_mean - (1-self.beta)*batch_mean
-                self.running_var  = self.beta*self.running_var  - (1-self.beta)*batch_var
+                self.running_mean = self.beta*self.running_mean + (1-self.beta)*batch_mean
+                self.running_var  = self.beta*self.running_var  + (1-self.beta)*batch_var
 
             # normalize
             x_out = (X - self.running_mean) / np.sqrt(self.running_var + self.eps)
@@ -273,6 +278,6 @@ class BatchNorm(Layer):
     def backward(self, grad_backward):
         # gradient wrt input
         assert hasattr(self, 'running_var'), 'BatchNorm forward must be called first.'
-        dx = grad_backward / np.sqrt(self.batch_var + self.eps)
+        dx = grad_backward / np.sqrt(self.running_var + self.eps)
 
         return dx

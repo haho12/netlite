@@ -61,13 +61,16 @@ for axis, idx in zip(fig.axes, np.arange(0, 6)):
 plt.show()
 
 model = nl.NeuralNetwork([
+            nl.BatchNorm(),
             nl.ConvolutionalLayer(5, 3, 32),
             nl.ReLU(),
             nl.MaxPoolingLayer(),
+            nl.BatchNorm(),
             nl.ConvolutionalLayer(5, 32, 64),
             nl.ReLU(),
             nl.MaxPoolingLayer(),
             nl.Flatten(),
+            nl.BatchNorm(),
             nl.FullyConnectedLayer(n_inputs=5*5*64, n_outputs=120),
             nl.ReLU(),
             nl.FullyConnectedLayer(n_inputs=120, n_outputs=84),
