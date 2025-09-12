@@ -246,27 +246,30 @@ class GlobalAvgPoolingLayer(Layer):
 # https://chatgpt.com/c/68c07dd3-62fc-8332-8928-fea151e2183f
 class BatchNorm(Layer):
     def forward(self, X):
-        inference_mode = X.shape[0] == 1
-        self.X = X
+        training_mode = (X.shape[0] > 1)
+        #self.X = X
+        self.eps = 1e-7
         
-        if inference_mode:
+        if training_mode:
             # compute batch statistics
             self.batch_mean = np.mean(X, axis=0, keepdims=True)
             self.batch_var = np.var(X, axis=0, keepdims=True)
 
             # normalize
             x_out = (X - self.batch_mean) / np.sqrt(self.batch_var + self.eps)
+            
+            # todo: soft updates
+            self.running_mean = self.batch_mean
+            self.running_var  = self.batch_var
         else:
             # Use running averages at inference
-            x_out = (x - self.running_mean) / np.sqrt(self.running_var + self.eps)
+            x_out = (X - self.running_mean) / np.sqrt(self.running_var + self.eps)
 
         return x_out
 
     def backward(self, grad_backward):
-        x, x_hat, mean, var = self.cache
-        N, D = x.shape
-
+        # todo: double-check this
         # gradient wrt input
-        dx = dx_hat / np.sqrt(var + self.eps) + dvar * 2 * (x - mean) / N + dmean / N
+        dx = grad_backward / np.sqrt(self.batch_var + self.eps)
 
-        return dx, dgamma, dbeta
+        return dx
