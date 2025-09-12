@@ -5,7 +5,7 @@ import sys
 import os
 
 # add parent folder with netlite source to path
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src'))
 sys.path.insert(0, parent_dir)
 import netlite as nl
     
@@ -61,14 +61,14 @@ for axis, idx in zip(fig.axes, np.arange(0, 6)):
 plt.show()
 
 model = nl.NeuralNetwork([
-            nl.ConvolutionalLayer(5, 3, 6),
+            nl.ConvolutionalLayer(5, 3, 32),
             nl.ReLU(),
-            nl.AvgPoolingLayer(),
-            nl.ConvolutionalLayer(5, 6, 16),
+            nl.MaxPoolingLayer(),
+            nl.ConvolutionalLayer(5, 32, 64),
             nl.ReLU(),
-            nl.AvgPoolingLayer(),
+            nl.MaxPoolingLayer(),
             nl.Flatten(),
-            nl.FullyConnectedLayer(n_inputs=400, n_outputs=120),
+            nl.FullyConnectedLayer(n_inputs=5*5*64, n_outputs=120),
             nl.ReLU(),
             nl.FullyConnectedLayer(n_inputs=120, n_outputs=84),
             nl.ReLU(),
@@ -78,7 +78,7 @@ model = nl.NeuralNetwork([
 loss_func = nl.CrossEntropyLoss()
 
 learning_rate = 0.001
-n_epochs  =  20 # test acc at ~60% with AvgPooling
+n_epochs  =  20 # test acc at ~70% with MaxPooling
 batchsize =  32
 
 optimizer = nl.OptimizerADAM(loss_func, learning_rate)
