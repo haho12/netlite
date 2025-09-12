@@ -1,3 +1,3 @@
 rm -rf dist
-py -m build
+python -m build
 
