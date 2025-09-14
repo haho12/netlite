@@ -45,3 +45,18 @@ class NeuralNetwork():
         for layer in self.layers:
             Xin = layer.print(Xin)
             
+    def save(self, filename):
+        model = {}
+        for i, layer in enumerate(self.layers):
+            weights = layer.get_weights()
+            model[i] = weights
+        np.save(filename, model)
+
+    def load(self, filename):
+        loaded_params = np.load(filename, allow_pickle=True).item()
+        assert len(loaded_params) == len(self.layers), f'Error: Unexpected number of layers in file {filename}.'
+        for i, layer in enumerate(self.layers):
+            weights = layer.get_weights()
+            for key in weights:
+                assert key in loaded_params[i].keys(), f'Error: Key {key} no found in layer {i} of file {filename}.'
+                weights[key] = loaded_params[i][key]
