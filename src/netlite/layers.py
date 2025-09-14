@@ -271,6 +271,7 @@ class BatchNorm(Layer):
             x_out = (X - self.running_mean) / np.sqrt(self.running_var + self.eps)
         else:
             # Use running averages at inference
+            assert hasattr(self, 'running_var'), 'BatchNorm must be called in training-mode first.'
             x_out = (X - self.running_mean) / np.sqrt(self.running_var + self.eps)
 
         return x_out
