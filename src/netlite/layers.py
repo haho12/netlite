@@ -244,9 +244,10 @@ class GlobalAvgPoolingLayer(Layer):
 
 class BatchNorm(Layer):
     def forward(self, X):
-        training_mode = (X.shape[0] > 1)
+        training_mode = (X.shape[0] > 1) or not hasattr(self, 'running_var')
         self.beta = 0.9
         self.eps  = 1e-7
+        self.X = X
         
         if training_mode:
             # compute batch statistics
