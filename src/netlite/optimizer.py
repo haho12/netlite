@@ -22,7 +22,7 @@ class OptimizerSGD():
         loss = self.loss_func.forward(y_model, y_true)
         
         if forward_only:
-            # Skip backward pass and update for validation data
+            # skip backward pass and update for validation data
             return loss.sum(), metrics
 
         # backward pass
@@ -45,6 +45,7 @@ class OptimizerSGD():
     def calc_accuracy(self, y_model, y_true):
         if y_model.shape[1] == 1:
             # single output neuron: threshold output at 0.5
+            # note: this assumes a Sigmoid activation function
             y_model_predicted = (y_model>0.5)
         else:
             # multiple outputs: get index of maximum
