@@ -1,5 +1,5 @@
 import numpy as np
-import numba
+from netlite.numba_optional import numba
 from abc import ABC, abstractmethod
 
 class Layer(ABC):
