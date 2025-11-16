@@ -1,8 +1,11 @@
 import numpy as np
 
 class NeuralNetwork():
-    def __init__(self, layers = []):
-        self.layers = layers
+    def __init__(self, layers = None):
+        if layers is None:
+            self.layers = [] # don't use a new list [] in the default argument, it would be shared by all instances
+        else:
+            self.layers = layers
 
     def add_layer(self, layer):
         self.layers.append(layer)
