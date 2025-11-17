@@ -8,7 +8,7 @@ class LossFunction(ABC):
 
     @abstractmethod
     def forward(self, X):
-        '''Propagate input forward through the los.'''
+        '''Propagate input forward through the loss.'''
         pass
 
     @abstractmethod
@@ -28,7 +28,7 @@ class MseLoss(LossFunction):
 
 class HuberLoss(LossFunction):
     '''Huber loss function
-       - Quadratic loss (L2 norm) for small errors (z < delta),
+       - Quadratic loss (L2 norm) for small errors |z| < delta,
          where delta is approx. the data standard deviation.
        - Linear loss (L1 norm) beyond for robustness against outliers.
     '''
