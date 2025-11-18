@@ -96,7 +96,7 @@ class ConvolutionalLayer(Layer):
             for j in range(w_out):
                 inp = X[:, i:i+k, j:j+k, :].copy().reshape(n, -1)
                 out = inp.dot(weight)
-                output[:, i, j, :] = out.reshape(n, -1)
+                output[:, i, j, :] += out.reshape(n, -1)
     
     def forward(self, X):
         assert len(X.shape)==4, 'ConvolutionalLayer: input must have dim=4'

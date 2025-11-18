@@ -18,10 +18,9 @@ class LossFunction(ABC):
     
 class MseLoss(LossFunction):
     '''Mean squared error loss'''
-    
     def forward(self, y_model, y_true):
-        loss = np.sum(0.5 * (y_model-y_true)**2)
-        return loss
+        loss = 0.5 * (y_model-y_true)**2
+        return loss.sum()
 
     def backward(self, y_model, y_true):
         return y_model - y_true

@@ -1,2 +1,9 @@
+# runtime requirements
+matplotlib
+numpy
+numba
+
+# build and test requirements
 build
 twine
+pytest
