@@ -69,13 +69,17 @@ class CrossEntropyLoss(LossFunction):
         '''The cross-entropy loss is trained using logits as the model output,
            i.e. the softmax probabilities are not computed during training.'''
         self.use_logits = True
-    
+
     def forward(self, logits, y_true):
-        # input:  model outputs (logits) and true class indices
+        # input:  model outputs (logits) and vector of true class indices
         # output: softmax cross-entropy loss
         assert np.issubdtype(y_true.dtype, np.integer), f"Expected integer dtype but got {y_true.dtype}"
         
-        true_class_logits = logits[np.arange(len(logits)), y_true]
+        batch_size = len(logits)
+        assert len(y_true.shape) == 1, "Vector of true class indices should be 1-dimensional."
+        assert y_true.shape[0] == batch_size, "Expected exactly one true class per sample."
+
+        true_class_logits = logits[np.arange(batch_size), y_true]
         
         cross_entropy = - true_class_logits + np.log(np.sum(np.exp(logits), axis=-1))
         return cross_entropy
