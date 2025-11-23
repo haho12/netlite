@@ -82,7 +82,7 @@ class CrossEntropyLoss(LossFunction):
         true_class_logits = logits[np.arange(batch_size), y_true]
         
         cross_entropy = - true_class_logits + np.log(np.sum(np.exp(logits), axis=-1))
-        return cross_entropy
+        return cross_entropy.sum()
 
     def backward(self, logits, y_true):
         # convert to one-hot-encoding:
