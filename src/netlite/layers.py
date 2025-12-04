@@ -109,7 +109,7 @@ class ConvolutionalLayer(Layer):
 
         output = np.tile(self.bias, (n, h_out, w_out, 1))
         weights = self.weights.reshape(-1, self.out_channels)
-        self.conv(X, weights, output, h_out, w_out, n, k)
+        ConvolutionalLayer.conv(X, weights, output, h_out, w_out, n, k)
         
         return output
 
@@ -136,7 +136,7 @@ class ConvolutionalLayer(Layer):
         grad_backward_pad = np.pad(grad_backward, ((0, 0), (pad, pad), (pad, pad), (0, 0)), 'constant')
         rotated_weight = self.weights[::-1, ::-1, :, :].transpose(0, 1, 3, 2).reshape(-1, self.in_channels)
         grad_input = np.zeros((n, h_in, w_in, self.in_channels), dtype='f')
-        self.conv(grad_backward_pad, rotated_weight, grad_input, h_in, w_in, n, k)
+        ConvolutionalLayer.conv(grad_backward_pad, rotated_weight, grad_input, h_in, w_in, n, k)
         return grad_input
     
     def get_weights(self):
