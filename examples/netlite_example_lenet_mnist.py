@@ -1,6 +1,7 @@
 import numpy as np
 import time
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
 import sys
 import os
 
@@ -94,6 +95,7 @@ plt.xlabel('epoch')
 plt.ylabel('loss')
 plt.title('Training LeNet on MNIST data')
 plt.grid()
+plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True)) # force integer
 plt.show()
 
 plt.plot(log['acc_train'], label='training')
@@ -103,6 +105,8 @@ plt.xlabel('epoch')
 plt.ylabel('accuracy')
 plt.title('Training LeNet on MNIST data')
 plt.grid()
+plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True)) # force integer
 #plt.savefig("lenet_mnist_acc_curves.svg")
+
 plt.show()
 
