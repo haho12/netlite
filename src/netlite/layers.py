@@ -18,9 +18,10 @@ class Layer(ABC):
     def print(self, Xin):
         '''Print layer properties.'''
         Xout = self.forward(Xin)
-        print(f'- {self.__class__.__name__}:')
-        print(f'  - in =(:, {', '.join(str(s) for s in Xin.shape[1:])})')
-        print(f'  - out=(:, {', '.join(str(s) for s in Xout.shape[1:])})')
+        print(f"- {self.__class__.__name__}:")
+        print(f"  - in =(:, {', '.join(str(s) for s in Xin.shape[1:])})")
+        print(f"  - out=(:, {', '.join(str(s) for s in Xout.shape[1:])})")
+
         return Xout
 
     def get_weights(self):
