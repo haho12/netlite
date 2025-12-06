@@ -62,8 +62,6 @@ def git_tag_and_push():
         subprocess.run(['git', 'tag', git_tag_new])
         subprocess.run(['git', 'push', git_tag_new])   # push new tag
 
-        sys.exit()
-
 success = run_tests()
 if not success:
     sys.exit()
