@@ -60,7 +60,7 @@ def git_tag_and_push():
         git_tag_new = 'v' + local_version
         print(f"Info: Updating git tag to '{git_tag_new}'")
         subprocess.run(['git', 'tag', git_tag_new])
-        subprocess.run(['git', 'push', git_tag_new])   # push new tag
+        subprocess.run(['git', 'push', 'origin', git_tag_new])   # push new tag
 
 success = run_tests()
 if not success:
