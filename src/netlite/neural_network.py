@@ -62,4 +62,4 @@ class NeuralNetwork():
             weights = layer.get_weights()
             for key in weights:
                 assert key in loaded_params[i].keys(), f'Error: Key {key} no found in layer {i} of file {filename}.'
-                weights[key] = loaded_params[i][key]
+                weights[key][:] = loaded_params[i][key]

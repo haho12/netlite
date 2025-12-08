@@ -74,4 +74,4 @@ success = git_tag_and_push()
 if not success:
     sys.exit()
 
-#subprocess.run(['twine', 'upload', 'dist/*'])
+subprocess.run(['twine', 'upload', 'dist/*'])
