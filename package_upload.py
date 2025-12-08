@@ -16,7 +16,7 @@ PACKAGE_NAME = "netlite"
 # - push to github (with release tag)
 # - upload to pipy
 
-def git_tag_and_push():
+def git_check_status():
     # Check code is fully committed in git
     status = subprocess.run(
         ["git", "status", "--porcelain"],
@@ -30,6 +30,9 @@ def git_tag_and_push():
         print(status)
         return False
 
+    return True
+
+def git_tag_and_push():
     subprocess.run(['git', 'push'])                # push commits
         
     # 1. Read local version from pyproject.toml
@@ -61,6 +64,12 @@ def git_tag_and_push():
         print(f"Info: Updating git tag to '{git_tag_new}'")
         subprocess.run(['git', 'tag', git_tag_new])
         subprocess.run(['git', 'push', 'origin', git_tag_new])   # push new tag
+
+    return True
+
+success = git_check_status()
+if not success:
+    sys.exit()
 
 success = run_tests()
 if not success:
