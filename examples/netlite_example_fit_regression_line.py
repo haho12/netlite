@@ -36,13 +36,13 @@ y_train[3:5] -= 40 # outliers
 model1 = nl.NeuralNetwork([
             nl.FullyConnectedLayer(n_inputs=1, n_outputs=1),
         ])
-optimizer1 = nl.OptimizerSGD(loss_func=nl.MseLoss(), learning_rate=0.0001)
+optimizer1 = nl.OptimizerSGD(loss_func=nl.MseLoss(), learning_rate=0.002)
 log1 = training_loop(model1, optimizer1, x_train, y_train)
 
 model2 = nl.NeuralNetwork([
             nl.FullyConnectedLayer(n_inputs=1, n_outputs=1),
         ])
-optimizer2 = nl.OptimizerSGD(loss_func=nl.HuberLoss(2.0), learning_rate=0.0001)
+optimizer2 = nl.OptimizerSGD(loss_func=nl.HuberLoss(2.0), learning_rate=0.002)
 log2 = training_loop(model2, optimizer2, x_train, y_train)
 
 model1_out = model1.forward(x_train)

@@ -52,7 +52,7 @@ def train(model, optimizer, X_train, y_train, X_valid=(), y_valid=(), n_epochs=1
 def test_xor_classifier():        
     use_sigmoid = True
     if use_sigmoid:
-        learning_rate = 2 # for Sigmoid activation function
+        learning_rate = 8 # for Sigmoid activation function
         
         model = nl.NeuralNetwork([
                     nl.FullyConnectedLayer(n_inputs=2, n_outputs=2),
@@ -62,7 +62,7 @@ def test_xor_classifier():
                 ])
     else:
         # LeakyReLU - does not always converge
-        learning_rate = 0.1 # for ReLU activation function
+        learning_rate = 0.4 # for ReLU activation function
         
         model = nl.NeuralNetwork([
                     nl.FullyConnectedLayer(n_inputs=2, n_outputs=2),

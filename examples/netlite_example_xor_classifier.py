@@ -49,7 +49,7 @@ y_train = np.array((1,
                    0,
                    1)).reshape((4,1))
 
-optimizer = nl.OptimizerSGD(loss_func=nl.MseLoss(), learning_rate=2)
+optimizer = nl.OptimizerSGD(loss_func=nl.MseLoss(), learning_rate=8)
         
 log = training_loop(model, optimizer, X_train, y_train, n_epochs=500, batchsize=4)
 

@@ -26,7 +26,11 @@ class OptimizerSGD():
             return loss.sum(), metrics
 
         # backward pass
-        loss_gradient = self.loss_func.backward(y_model, y_true)
+        # Loss functions return the gradient of the summed loss; divide by the
+        # batch size so that the update follows the gradient of the mean loss
+        # and the learning rate does not depend on the batch size.
+        batch_size = len(X)
+        loss_gradient = self.loss_func.backward(y_model, y_true) / batch_size
 
         model.backward(loss_gradient, use_logits)
 
@@ -124,14 +128,21 @@ class OptimizerADAM(OptimizerSGD):
     
                 layer_weights[key] -= self.learning_rate / (np.sqrt(self.v[i][key]) + self.eps) * self.m[i][key]
 
-def batch_handler(X, y, batchsize, shuffle=False):
+def batch_handler(X, y, batchsize, shuffle=False, drop_last=False):
+    '''Iterate over (X, y) in mini-batches.
+
+    By default every sample is used once per pass: if len(X) is not a multiple
+    of batchsize, the last batch is smaller. Set drop_last=True to skip that
+    incomplete batch and only yield batches of exactly batchsize samples.
+    '''
     assert len(X) == len(y), f'Number of data {len(X)} does not match number of labels {len(y)}'
     batchsize = min(batchsize, len(y))
 
     if shuffle:
         idxs = np.random.permutation((len(y)))
 
-    for start_idx in range(0, len(X) - batchsize + 1, batchsize):
+    end = len(X) - batchsize + 1 if drop_last else len(X)
+    for start_idx in range(0, end, batchsize):
         if shuffle:
             batch = idxs[start_idx:start_idx + batchsize]
         else:
